@@ -8,6 +8,7 @@ import { PEOPLE_API_URL_TOKEN, PEOPLE_REPOSITORY_MAPPING_TOKEN, PEOPLE_REPOSITOR
 import { BaseRespositoryLocalStorageService } from './impl/base-repository-local-storage.service';
 import { Model } from '../models/base.model';
 import { IBaseMapping } from './intefaces/base-mapping.interface';
+import { JsonServerRepositoryService } from './impl/json-server-repository.service';
 // Importa otros modelos según sea necesario
 
 export function createHttpRepository<T extends Model>(http: HttpClient, apiUrl: string, resource:string, mapping:IBaseMapping<T>): IBaseRepository<T> {
@@ -17,7 +18,9 @@ export function createHttpRepository<T extends Model>(http: HttpClient, apiUrl: 
 export function createLocalStorageRepository<T extends Model>(resource: string, mapping:IBaseMapping<T>): IBaseRepository<T> {
   return new BaseRespositoryLocalStorageService<T>(resource, mapping);
 }
-
+export function createJsonServerRepository<T extends Model>(resource: string, mapping:IBaseMapping<T>, http:HttpClient, apiURL:string): IBaseRepository<T> {
+  return new JsonServerRepositoryService<T>(http, apiURL,resource,mapping);
+}
 // Ejemplo de configuración para People
 export const PeopleRepositoryFactory: FactoryProvider = {
   provide: PEOPLE_REPOSITORY_TOKEN,
@@ -25,7 +28,7 @@ export const PeopleRepositoryFactory: FactoryProvider = {
     // Aquí puedes decidir qué implementación usar
     // Por ejemplo, usar Firebase:
     //return createHttpRepository<Person>(http, apiURL);
-    return createLocalStorageRepository<Person>(resource, mapping);
+    return createJsonServerRepository<Person>(resource,mapping,http,apiURL);
   },
   deps: [HttpClient, PEOPLE_API_URL_TOKEN, PEOPLE_RESOURCE_NAME_TOKEN, PEOPLE_REPOSITORY_MAPPING_TOKEN]
 };
